@@ -7,3 +7,9 @@ __pycache__/
 
 # Local path on each computer (use config.example.txt as template)
 config.txt
+
+# Node / Electron
+node_modules/
+dist/
+release/
+*.log
