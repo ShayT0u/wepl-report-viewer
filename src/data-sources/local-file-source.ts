@@ -5,12 +5,14 @@ import {
   LocalDataSourceConfig,
   ReportContent,
   ReportKey,
+  ReportLink,
   SearchMatch,
   SearchResult,
 } from "./types";
 import {
   isValidDate,
   isValidPatientId,
+  listSubdirs,
   listValidDateSubdirs,
   pathExistsAsDirectory,
   pathExistsAsFile,
@@ -55,22 +57,12 @@ export class LocalFileDataSource {
       }
 
       dobFolderFound = true;
-      const reports = [];
-
-      for (const [reportKey, filename] of Object.entries(ALLOWED_REPORTS)) {
-        const reportPath = join(dobDir, filename);
-        if (pathExistsAsFile(reportPath)) {
-          reports.push({
-            label: reportKey.toUpperCase(),
-            reportKey: reportKey as ReportKey,
-            sourceId: this.id,
-            sourceName: this.name,
-          });
-        }
-      }
+      const reports = this.collectReports(dobDir);
 
       reportsFound += reports.length;
       matches.push({
+        patientId,
+        dob,
         scanDate,
         folderPath: dobDir,
         reports,
@@ -102,6 +94,86 @@ export class LocalFileDataSource {
       dob,
       matches,
     };
+  }
+
+  async listReports(): Promise<SearchResult> {
+    if (!this.basePath || !pathExistsAsDirectory(this.basePath)) {
+      return this.emptyResult(
+        "",
+        "",
+        `Local directory not found: ${this.basePath}`
+      );
+    }
+
+    const matches: SearchMatch[] = [];
+
+    for (const patientId of listSubdirs(this.basePath).filter(isValidPatientId)) {
+      const patientDir = safePathUnderBase(this.basePath, patientId);
+      if (!patientDir) {
+        continue;
+      }
+
+      for (const scanDate of listValidDateSubdirs(patientDir)) {
+        const scanDir = safePathUnderBase(this.basePath, patientId, scanDate);
+        if (!scanDir) {
+          continue;
+        }
+
+        for (const dob of listValidDateSubdirs(scanDir)) {
+          const dobDir = safePathUnderBase(
+            this.basePath,
+            patientId,
+            scanDate,
+            dob
+          );
+          if (!dobDir) {
+            continue;
+          }
+
+          const reports = this.collectReports(dobDir);
+          if (reports.length === 0) {
+            continue;
+          }
+
+          matches.push({
+            patientId,
+            dob,
+            scanDate,
+            folderPath: dobDir,
+            reports,
+            sourceId: this.id,
+            sourceName: this.name,
+          });
+        }
+      }
+    }
+
+    if (matches.length === 0) {
+      return this.emptyResult(
+        "",
+        "",
+        `No reports found under ${this.basePath}.`
+      );
+    }
+
+    return { error: null, patientId: "", dob: "", matches };
+  }
+
+  private collectReports(dobDir: string): ReportLink[] {
+    const reports: ReportLink[] = [];
+
+    for (const [reportKey, filename] of Object.entries(ALLOWED_REPORTS)) {
+      if (pathExistsAsFile(join(dobDir, filename))) {
+        reports.push({
+          label: reportKey.toUpperCase(),
+          reportKey: reportKey as ReportKey,
+          sourceId: this.id,
+          sourceName: this.name,
+        });
+      }
+    }
+
+    return reports;
   }
 
   async getReportContent(

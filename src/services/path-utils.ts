@@ -33,6 +33,22 @@ export function safePathUnderBase(baseDir: string, ...parts: string[]): string |
   return candidate;
 }
 
+export function listSubdirs(dirPath: string): string[] {
+  try {
+    return readdirSync(dirPath)
+      .filter((name) => {
+        try {
+          return statSync(join(dirPath, name)).isDirectory();
+        } catch {
+          return false;
+        }
+      })
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
 export function listValidDateSubdirs(dirPath: string): string[] {
   try {
     return readdirSync(dirPath)

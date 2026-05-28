@@ -9,55 +9,121 @@
 <body>
   <div class="app-shell">
     <header class="top-bar">
-      <div>
-        <h1>Settings</h1>
-        <p class="hint">Configure data sources, local directory, and appearance.</p>
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span>
+        <div>
+          <h1>Settings</h1>
+          <p class="hint">Configure data sources, local directory, and appearance.</p>
+        </div>
       </div>
-      <a class="button-link secondary" href="index.html">Back to Search</a>
+      <a class="button-link secondary" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Back to Search
+      </a>
     </header>
 
-    <section class="card settings-section">
-      <h2>Appearance</h2>
-      <label for="theme">Theme</label>
-      <select id="theme">
-        <option value="system">System</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
-    </section>
-
-    <section class="card settings-section">
-      <h2>Local Data Directory</h2>
-      <p class="hint">Reports are read from this folder using the same patient/scan/DOB structure as the original viewer.</p>
-      <label for="local-directory">Directory path</label>
-      <input id="local-directory" type="text" placeholder="E:\WEPLAnalyzer\output">
-      <div class="button-row">
-        <button type="button" class="secondary" id="browse-directory">Browse</button>
+    <section class="card stack settings-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        Appearance
+      </h2>
+      <div class="field">
+        <label for="theme">Theme</label>
+        <select id="theme">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
       </div>
     </section>
 
-    <section class="card settings-section">
-      <h2>API Data Sources</h2>
+    <section class="card stack settings-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+        Local Data Directory
+      </h2>
+      <p class="hint">Reports are read from this folder using the same patient/scan/DOB structure as the original viewer.</p>
+      <div class="field">
+        <label for="local-directory">Directory path</label>
+        <div class="input-with-button">
+          <input id="local-directory" type="text" placeholder="E:\WEPLAnalyzer\output">
+          <button type="button" class="secondary" id="browse-directory">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            Browse
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card stack settings-section">
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        API Data Sources
+      </h2>
       <p class="hint">Add REST APIs that expose <code>/search</code> and <code>/report/{patient}/{scan}/{dob}/{key}</code> endpoints.</p>
 
       <div id="api-list" class="stack"></div>
 
-      <div class="stack" style="margin-top: 1rem;">
-        <label for="api-name">New API name</label>
-        <input id="api-name" type="text" placeholder="Production API">
+      <hr class="divider">
 
-        <label for="api-url">New API base URL</label>
-        <input id="api-url" type="url" placeholder="https://reports.example.com/api">
+      <div class="inline-fields two-col">
+        <div class="field">
+          <label for="api-name">New API name</label>
+          <input id="api-name" type="text" placeholder="Production API">
+        </div>
+        <div class="field">
+          <label for="api-url">New API base URL</label>
+          <input id="api-url" type="url" placeholder="https://reports.example.com/api">
+        </div>
       </div>
 
       <div class="button-row">
-        <button type="button" class="primary" id="add-api">Add API Source</button>
+        <button type="button" class="ghost" id="add-api">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add API Source
+        </button>
       </div>
     </section>
 
-    <section class="card settings-section">
+    <section class="card stack settings-section">
       <div class="button-row">
-        <button type="button" class="primary" id="save-settings">Save Settings</button>
+        <button type="button" class="primary" id="save-settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Save Settings
+        </button>
       </div>
       <p class="hint" id="settings-status"></p>
     </section>

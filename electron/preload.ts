@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld("weplViewer", {
   pickDirectory: () => ipcRenderer.invoke("dialog:pick-directory"),
   searchReports: (patientId: string, dob: string) =>
     ipcRenderer.invoke("search:reports", patientId, dob),
+  listAllReports: () => ipcRenderer.invoke("reports:list"),
   getReport: (payload: {
     sourceId: string;
     patientId: string;

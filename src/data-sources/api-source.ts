@@ -8,14 +8,27 @@ import {
 } from "./types";
 import { isValidDate, isValidPatientId } from "../services/path-utils";
 
+interface ApiReportEntry {
+  label: string;
+  report_key: ReportKey;
+}
+
 interface ApiSearchResponse {
   matches?: Array<{
     scan_date: string;
     folder_path: string;
-    reports?: Array<{
-      label: string;
-      report_key: ReportKey;
-    }>;
+    reports?: ApiReportEntry[];
+  }>;
+  error?: string;
+}
+
+interface ApiListResponse {
+  matches?: Array<{
+    patient_id: string;
+    dob: string;
+    scan_date: string;
+    folder_path: string;
+    reports?: ApiReportEntry[];
   }>;
   error?: string;
 }
@@ -63,14 +76,11 @@ export class ApiDataSource {
       }
 
       const matches: SearchMatch[] = (payload.matches ?? []).map((match) => ({
+        patientId,
+        dob,
         scanDate: match.scan_date,
         folderPath: match.folder_path,
-        reports: (match.reports ?? []).map((report) => ({
-          label: report.label,
-          reportKey: report.report_key,
-          sourceId: this.id,
-          sourceName: this.name,
-        })),
+        reports: this.mapReports(match.reports),
         sourceId: this.id,
         sourceName: this.name,
       }));
@@ -98,6 +108,64 @@ export class ApiDataSource {
         `API source "${this.name}" failed: ${message}`
       );
     }
+  }
+
+  async listReports(): Promise<SearchResult> {
+    try {
+      const response = await fetch(`${this.baseUrl}/list`, {
+        headers: this.buildHeaders(),
+      });
+
+      if (!response.ok) {
+        return this.emptyResult(
+          "",
+          "",
+          `API source "${this.name}" does not support listing (HTTP ${response.status}).`
+        );
+      }
+
+      const payload = (await response.json()) as ApiListResponse;
+      if (payload.error) {
+        return this.emptyResult("", "", payload.error);
+      }
+
+      const matches: SearchMatch[] = (payload.matches ?? []).map((match) => ({
+        patientId: match.patient_id,
+        dob: match.dob,
+        scanDate: match.scan_date,
+        folderPath: match.folder_path,
+        reports: this.mapReports(match.reports),
+        sourceId: this.id,
+        sourceName: this.name,
+      }));
+
+      if (matches.length === 0) {
+        return this.emptyResult(
+          "",
+          "",
+          `No reports listed by API source "${this.name}".`
+        );
+      }
+
+      return { error: null, patientId: "", dob: "", matches };
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown API error";
+      return this.emptyResult(
+        "",
+        "",
+        `API source "${this.name}" failed to list: ${message}`
+      );
+    }
+  }
+
+  private mapReports(reports: ApiReportEntry[] | undefined) {
+    return (reports ?? []).map((report) => ({
+      label: report.label,
+      reportKey: report.report_key,
+      sourceId: this.id,
+      sourceName: this.name,
+    }));
   }
 
   async getReportContent(

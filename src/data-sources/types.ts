@@ -15,6 +15,8 @@ export interface ReportLink {
 }
 
 export interface SearchMatch {
+  patientId: string;
+  dob: string;
   scanDate: string;
   folderPath: string;
   reports: ReportLink[];
@@ -60,6 +62,7 @@ export interface DataSource {
   readonly name: string;
   readonly type: "local" | "api";
   searchReports(patientId: string, dob: string): Promise<SearchResult>;
+  listReports(): Promise<SearchResult>;
   getReportContent(
     patientId: string,
     scanDate: string,

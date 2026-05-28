@@ -114,6 +114,10 @@ function registerIpcHandlers(): void {
     return dataSourceManager.searchAll(patientId, dob);
   });
 
+  ipcMain.handle("reports:list", async () => {
+    return dataSourceManager.listAll();
+  });
+
   ipcMain.handle(
     "report:get",
     async (

@@ -148,6 +148,45 @@ export class DataSourceManager {
     };
   }
 
+  async listAll(): Promise<SearchResult> {
+    const sources = this.getActiveSources();
+
+    if (sources.length === 0) {
+      return {
+        error:
+          "No data sources configured. Open Settings to set a local directory or add an API.",
+        patientId: "",
+        dob: "",
+        matches: [],
+      };
+    }
+
+    const results = await Promise.all(
+      sources.map((source) => source.listReports())
+    );
+
+    const matches = results.flatMap((result) => result.matches);
+    const errors = results
+      .map((result) => result.error)
+      .filter((error): error is string => Boolean(error));
+
+    if (matches.length === 0) {
+      return {
+        error: errors[0] ?? "No reports found in any configured source.",
+        patientId: "",
+        dob: "",
+        matches: [],
+      };
+    }
+
+    return {
+      error: null,
+      patientId: "",
+      dob: "",
+      matches: sortMatches(matches),
+    };
+  }
+
   async getReport(
     sourceId: string,
     patientId: string,
@@ -169,6 +208,12 @@ function sortMatches(matches: SearchMatch[]): SearchMatch[] {
     const sourceCompare = left.sourceName.localeCompare(right.sourceName);
     if (sourceCompare !== 0) {
       return sourceCompare;
+    }
+    const patientCompare = left.patientId.localeCompare(right.patientId, undefined, {
+      numeric: true,
+    });
+    if (patientCompare !== 0) {
+      return patientCompare;
     }
     return right.scanDate.localeCompare(left.scanDate);
   });

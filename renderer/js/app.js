@@ -4,13 +4,11 @@ const reportPanel = document.getElementById("report-panel");
 const searchForm = document.getElementById("search-form");
 const resultsError = document.getElementById("results-error");
 const resultsList = document.getElementById("results-list");
-const resultPatientId = document.getElementById("result-patient-id");
-const resultDob = document.getElementById("result-dob");
+const resultsTitle = document.getElementById("results-title");
+const resultsChips = document.getElementById("results-chips");
 const reportFrame = document.getElementById("report-frame");
 const reportTitle = document.getElementById("report-title");
 const reportMeta = document.getElementById("report-meta");
-
-let lastSearch = { patientId: "", dob: "" };
 
 function showPanel(panel) {
   searchPanel.classList.add("hidden");
@@ -19,10 +17,28 @@ function showPanel(panel) {
   panel.classList.remove("hidden");
 }
 
-function renderResults(result) {
-  resultPatientId.textContent = result.patientId;
-  resultDob.textContent = result.dob;
+function showFailure(message) {
   resultsList.innerHTML = "";
+  resultsChips.innerHTML = "";
+  resultsError.textContent = message;
+  resultsError.classList.remove("hidden");
+  showPanel(resultsPanel);
+}
+
+function makeChip(label, value) {
+  const chip = document.createElement("span");
+  chip.className = "chip";
+  const strong = document.createElement("strong");
+  strong.textContent = label;
+  const span = document.createElement("span");
+  span.textContent = value;
+  chip.append(strong, document.createTextNode(" "), span);
+  return chip;
+}
+
+function renderResults(result, { listMode = false } = {}) {
+  resultsList.innerHTML = "";
+  resultsChips.innerHTML = "";
 
   if (result.error) {
     resultsError.textContent = result.error;
@@ -31,57 +47,107 @@ function renderResults(result) {
     resultsError.classList.add("hidden");
   }
 
-  if (!result.matches || result.matches.length === 0) {
+  const matches = result.matches || [];
+
+  if (listMode) {
+    resultsTitle.textContent = "All Reports";
+    if (matches.length > 0) {
+      const reportCount = matches.reduce(
+        (total, match) => total + match.reports.length,
+        0
+      );
+      resultsChips.appendChild(makeChip("Folders", String(matches.length)));
+      resultsChips.appendChild(makeChip("Reports", String(reportCount)));
+    }
+  } else {
+    resultsTitle.textContent = "Search Results";
+    resultsChips.appendChild(makeChip("Patient", result.patientId));
+    resultsChips.appendChild(makeChip("DOB", result.dob));
+  }
+
+  if (matches.length === 0) {
+    if (!result.error) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <p>No reports found.</p>`;
+      resultsList.appendChild(empty);
+    }
     showPanel(resultsPanel);
     return;
   }
 
-  for (const match of result.matches) {
-    const card = document.createElement("article");
-    card.className = "card match-card";
-
-    const sourceBadge = document.createElement("span");
-    sourceBadge.className = "source-badge";
-    sourceBadge.textContent = match.sourceName;
-
-    const heading = document.createElement("p");
-    heading.innerHTML = `<strong>Scan/Processing Date:</strong> ${match.scanDate}`;
-
-    const folder = document.createElement("p");
-    folder.className = "match-meta";
-    folder.innerHTML = `<strong>Matched Folder:</strong> ${match.folderPath}`;
-
-    const links = document.createElement("div");
-    links.className = "report-links";
-
-    if (match.reports.length === 0) {
-      const empty = document.createElement("p");
-      empty.className = "match-meta";
-      empty.textContent = "No report files found in this matched folder.";
-      card.append(sourceBadge, heading, folder, empty);
-    } else {
-      for (const report of match.reports) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.textContent = `${report.label} Report`;
-        button.addEventListener("click", () => openReport(match, report));
-        links.appendChild(button);
-      }
-      card.append(sourceBadge, heading, folder, links);
-    }
-
-    resultsList.appendChild(card);
+  for (const match of matches) {
+    resultsList.appendChild(buildMatchCard(match, listMode));
   }
 
   showPanel(resultsPanel);
 }
 
+function buildMatchCard(match, listMode) {
+  const card = document.createElement("article");
+  card.className = "match-card";
+
+  const sourceBadge = document.createElement("span");
+  sourceBadge.className = "source-badge";
+  sourceBadge.textContent = match.sourceName;
+  card.appendChild(sourceBadge);
+
+  if (listMode) {
+    const patientLine = document.createElement("p");
+    patientLine.innerHTML = `<strong>Patient:</strong> ${match.patientId} &nbsp;·&nbsp; <strong>DOB:</strong> ${match.dob}`;
+    card.appendChild(patientLine);
+  }
+
+  const heading = document.createElement("p");
+  heading.innerHTML = `<strong>Scan / Processing Date:</strong> ${match.scanDate}`;
+  card.appendChild(heading);
+
+  const folder = document.createElement("p");
+  folder.className = "match-meta";
+  folder.innerHTML = `<strong>Matched Folder:</strong> ${match.folderPath}`;
+  card.appendChild(folder);
+
+  if (match.reports.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "match-meta";
+    empty.textContent = "No report files found in this matched folder.";
+    card.appendChild(empty);
+    return card;
+  }
+
+  const links = document.createElement("div");
+  links.className = "report-links";
+
+  for (const report of match.reports) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary";
+    button.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+      <span></span>`;
+    button.querySelector("span").textContent = `${report.label} Report`;
+    button.addEventListener("click", () => openReport(match, report));
+    links.appendChild(button);
+  }
+
+  card.appendChild(links);
+  return card;
+}
+
 async function openReport(match, report) {
   const payload = {
     sourceId: report.sourceId,
-    patientId: lastSearch.patientId,
+    patientId: match.patientId,
     scanDate: match.scanDate,
-    dob: lastSearch.dob,
+    dob: match.dob,
     reportKey: report.reportKey,
   };
 
@@ -94,7 +160,7 @@ async function openReport(match, report) {
   }
 
   reportTitle.textContent = `${report.label} Report`;
-  reportMeta.textContent = `${report.sourceName} · Scan ${match.scanDate}`;
+  reportMeta.textContent = `${report.sourceName} · Patient ${match.patientId} · Scan ${match.scanDate}`;
   reportFrame.srcdoc = content.content;
   showPanel(reportPanel);
 }
@@ -103,10 +169,27 @@ searchForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const patientId = document.getElementById("patient_id").value.trim();
   const dob = document.getElementById("dob").value.trim();
-  lastSearch = { patientId, dob };
 
-  const result = await window.weplViewer.searchReports(patientId, dob);
-  renderResults(result);
+  try {
+    const result = await window.weplViewer.searchReports(patientId, dob);
+    renderResults(result, { listMode: false });
+  } catch (error) {
+    showFailure(`Search failed: ${error?.message ?? error}`);
+  }
+});
+
+document.getElementById("browse-all").addEventListener("click", async () => {
+  if (!window.weplViewer || typeof window.weplViewer.listAllReports !== "function") {
+    showFailure("Browse is unavailable. Please restart the application.");
+    return;
+  }
+
+  try {
+    const result = await window.weplViewer.listAllReports();
+    renderResults(result, { listMode: true });
+  } catch (error) {
+    showFailure(`Could not list reports: ${error?.message ?? error}`);
+  }
 });
 
 document.getElementById("back-to-search").addEventListener("click", () => {
