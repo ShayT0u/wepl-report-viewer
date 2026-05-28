@@ -1,0 +1,47 @@
+HOW TO COPY THIS TO ANOTHER COMPUTER
+====================================
+
+Copy or zip ONLY these items:
+
+  app.py
+  config.txt
+  requirements.txt
+  START_VIEWER.bat
+  COPY_THIS_FOLDER.txt
+  README.txt
+  templates\   (whole folder)
+
+DO NOT copy:
+  .venv\
+  __pycache__\
+
+
+ON THE OTHER COMPUTER
+=====================
+
+1. Paste the folder anywhere (Desktop, USB drive, E:\WEPLAnalyzer\viewer_interface, etc.)
+
+2. Open config.txt in Notepad.
+   Change the path to where WEPL reports are on THAT computer, for example:
+     E:\WEPLAnalyzer\output
+   Save the file.
+
+3. Double-click START_VIEWER.bat
+
+4. Browser opens to http://localhost:5000
+   Search by Patient ID and DOB.
+
+REQUIREMENTS ON OTHER COMPUTER
+==============================
+
+- Windows PC
+- Python installed (https://www.python.org/downloads/)
+  When installing, check "Add python.exe to PATH"
+- Access to the WEPL output folder (local drive or network share)
+
+NOTES
+=====
+
+- This is a local tool. Each person runs it on their own PC.
+- It does not use a database. It reads existing HTML report folders.
+- The WEPL Analyzer program itself is separate; this only views reports.
