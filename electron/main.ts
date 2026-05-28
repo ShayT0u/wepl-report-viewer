@@ -1,4 +1,13 @@
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell } from "electron";
+import { randomUUID } from "crypto";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  nativeTheme,
+  protocol,
+  shell,
+} from "electron";
 import { join } from "path";
 import {
   AppSettings,
@@ -8,9 +17,43 @@ import {
   ThemeMode,
 } from "../src/data-sources";
 
+const REPORT_SCHEME = "wepl-report";
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: REPORT_SCHEME,
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
+
+interface StoredReport {
+  content: string;
+  mimeType: string;
+}
+
 let mainWindow: BrowserWindow | null = null;
+let activeReportId: string | null = null;
+const reportStore = new Map<string, StoredReport>();
 const settingsStore = new SettingsStore();
 const dataSourceManager = new DataSourceManager(settingsStore);
+
+function clearStoredReport(id: string | null): void {
+  if (id) {
+    reportStore.delete(id);
+  }
+}
+
+function storeReport(content: string, mimeType: string): string {
+  clearStoredReport(activeReportId);
+  const id = randomUUID();
+  reportStore.set(id, { content, mimeType });
+  activeReportId = id;
+  return id;
+}
 
 function getRendererPath(page: string): string {
   return join(__dirname, "../../renderer", page);
@@ -130,13 +173,23 @@ function registerIpcHandlers(): void {
         reportKey: ReportKey;
       }
     ) => {
-      return dataSourceManager.getReport(
+      const report = await dataSourceManager.getReport(
         payload.sourceId,
         payload.patientId,
         payload.scanDate,
         payload.dob,
         payload.reportKey
       );
+
+      if (!report) {
+        return null;
+      }
+
+      const id = storeReport(report.content, report.mimeType);
+      return {
+        id,
+        sourceName: report.sourceName,
+      };
     }
   );
 
@@ -146,6 +199,20 @@ function registerIpcHandlers(): void {
 }
 
 app.whenReady().then(() => {
+  protocol.handle(REPORT_SCHEME, (request) => {
+    const url = new URL(request.url);
+    const id = url.hostname || url.pathname.replace(/^\//, "");
+    const stored = reportStore.get(id);
+
+    if (!stored) {
+      return new Response("Report not found", { status: 404 });
+    }
+
+    return new Response(stored.content, {
+      headers: { "Content-Type": stored.mimeType },
+    });
+  });
+
   registerIpcHandlers();
   createWindow();
 

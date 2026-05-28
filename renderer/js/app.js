@@ -36,6 +36,17 @@ function makeChip(label, value) {
   return chip;
 }
 
+function makeLabeledLine(label, value, className) {
+  const line = document.createElement("p");
+  if (className) {
+    line.className = className;
+  }
+  const strong = document.createElement("strong");
+  strong.textContent = `${label}:`;
+  line.append(strong, document.createTextNode(` ${value}`));
+  return line;
+}
+
 function renderResults(result, { listMode = false } = {}) {
   resultsList.innerHTML = "";
   resultsChips.innerHTML = "";
@@ -99,18 +110,25 @@ function buildMatchCard(match, listMode) {
 
   if (listMode) {
     const patientLine = document.createElement("p");
-    patientLine.innerHTML = `<strong>Patient:</strong> ${match.patientId} &nbsp;·&nbsp; <strong>DOB:</strong> ${match.dob}`;
+    const patientLabel = document.createElement("strong");
+    patientLabel.textContent = "Patient:";
+    const dobLabel = document.createElement("strong");
+    dobLabel.textContent = "DOB:";
+    patientLine.append(
+      patientLabel,
+      document.createTextNode(` ${match.patientId} · `),
+      dobLabel,
+      document.createTextNode(` ${match.dob}`)
+    );
     card.appendChild(patientLine);
   }
 
-  const heading = document.createElement("p");
-  heading.innerHTML = `<strong>Scan / Processing Date:</strong> ${match.scanDate}`;
-  card.appendChild(heading);
-
-  const folder = document.createElement("p");
-  folder.className = "match-meta";
-  folder.innerHTML = `<strong>Matched Folder:</strong> ${match.folderPath}`;
-  card.appendChild(folder);
+  card.appendChild(
+    makeLabeledLine("Scan / Processing Date", match.scanDate)
+  );
+  card.appendChild(
+    makeLabeledLine("Matched Folder", match.folderPath, "match-meta")
+  );
 
   if (match.reports.length === 0) {
     const empty = document.createElement("p");
@@ -152,7 +170,7 @@ async function openReport(match, report) {
   };
 
   const content = await window.weplViewer.getReport(payload);
-  if (!content) {
+  if (!content?.id) {
     resultsError.textContent = "Could not load the selected report.";
     resultsError.classList.remove("hidden");
     showPanel(resultsPanel);
@@ -160,8 +178,8 @@ async function openReport(match, report) {
   }
 
   reportTitle.textContent = `${report.label} Report`;
-  reportMeta.textContent = `${report.sourceName} · Patient ${match.patientId} · Scan ${match.scanDate}`;
-  reportFrame.srcdoc = content.content;
+  reportMeta.textContent = `${content.sourceName} · Patient ${match.patientId} · Scan ${match.scanDate}`;
+  reportFrame.src = `wepl-report://${content.id}`;
   showPanel(reportPanel);
 }
 
@@ -197,6 +215,6 @@ document.getElementById("back-to-search").addEventListener("click", () => {
 });
 
 document.getElementById("back-to-results").addEventListener("click", () => {
-  reportFrame.srcdoc = "";
+  reportFrame.src = "about:blank";
   showPanel(resultsPanel);
 });

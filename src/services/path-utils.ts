@@ -1,5 +1,5 @@
 import { readdirSync, statSync } from "fs";
-import { join, resolve } from "path";
+import { isAbsolute, join, relative, resolve, sep } from "path";
 
 const PATIENT_ID_RE = /^\d+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -25,8 +25,12 @@ export function isValidDate(dateStr: string): boolean {
 export function safePathUnderBase(baseDir: string, ...parts: string[]): string | null {
   const baseResolved = resolve(baseDir);
   const candidate = resolve(join(baseResolved, ...parts));
+  const rel = relative(baseResolved, candidate);
 
-  if (!candidate.startsWith(baseResolved)) {
+  if (
+    rel !== "" &&
+    (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel))
+  ) {
     return null;
   }
 

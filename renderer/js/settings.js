@@ -12,6 +12,70 @@ function setStatus(message, isError = false) {
   settingsStatus.style.color = isError ? "var(--danger)" : "var(--success)";
 }
 
+function createField(labelText, fieldElement) {
+  const wrapper = document.createElement("div");
+  const label = document.createElement("label");
+  label.textContent = labelText;
+  wrapper.append(label, fieldElement);
+  return wrapper;
+}
+
+function buildApiItem(source) {
+  const item = document.createElement("div");
+  item.className = "api-item stack";
+  item.dataset.id = source.id;
+
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.dataset.field = "name";
+  nameInput.value = source.name;
+
+  const enabledSelect = document.createElement("select");
+  enabledSelect.dataset.field = "enabled";
+
+  const enabledOption = document.createElement("option");
+  enabledOption.value = "true";
+  enabledOption.textContent = "Enabled";
+  enabledOption.selected = source.enabled;
+
+  const disabledOption = document.createElement("option");
+  disabledOption.value = "false";
+  disabledOption.textContent = "Disabled";
+  disabledOption.selected = !source.enabled;
+
+  enabledSelect.append(enabledOption, disabledOption);
+
+  const nameRow = document.createElement("div");
+  nameRow.className = "inline-fields two-col";
+  nameRow.append(
+    createField("Name", nameInput),
+    createField("Enabled", enabledSelect)
+  );
+
+  const baseUrlInput = document.createElement("input");
+  baseUrlInput.type = "url";
+  baseUrlInput.dataset.field = "baseUrl";
+  baseUrlInput.value = source.baseUrl;
+
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.className = "danger";
+  removeButton.dataset.action = "remove";
+  removeButton.textContent = "Remove";
+
+  const buttonRow = document.createElement("div");
+  buttonRow.className = "button-row";
+  buttonRow.appendChild(removeButton);
+
+  item.append(
+    nameRow,
+    createField("Base URL", baseUrlInput),
+    buttonRow
+  );
+
+  return item;
+}
+
 function renderApiSources(apiSources) {
   apiList.innerHTML = "";
 
@@ -24,34 +88,7 @@ function renderApiSources(apiSources) {
   }
 
   for (const source of apiSources) {
-    const item = document.createElement("div");
-    item.className = "api-item stack";
-    item.dataset.id = source.id;
-
-    item.innerHTML = `
-      <div class="inline-fields two-col">
-        <div>
-          <label>Name</label>
-          <input type="text" data-field="name" value="${source.name}">
-        </div>
-        <div>
-          <label>Enabled</label>
-          <select data-field="enabled">
-            <option value="true" ${source.enabled ? "selected" : ""}>Enabled</option>
-            <option value="false" ${source.enabled ? "" : "selected"}>Disabled</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label>Base URL</label>
-        <input type="url" data-field="baseUrl" value="${source.baseUrl}">
-      </div>
-      <div class="button-row">
-        <button type="button" class="danger" data-action="remove">Remove</button>
-      </div>
-    `;
-
-    apiList.appendChild(item);
+    apiList.appendChild(buildApiItem(source));
   }
 }
 
