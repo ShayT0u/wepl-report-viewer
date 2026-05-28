@@ -1,21 +1,20 @@
 WEPL Report Viewer - Quick Start
 ================================
 
-Desktop app (recommended)
--------------------------
+Install and run (developers)
+----------------------------
 1) Install Node.js 22+ from https://nodejs.org/
-2) Double-click START_ELECTRON.bat
+2) Double-click START_VIEWER.bat
    - Or run: npm install && npm start
 3) Open Settings to configure:
    - Local WEPL output directory
    - API data sources
    - Light / dark / system theme
 
-Legacy browser mode (Python)
-----------------------------
-1) Edit config.txt with your WEPL output folder path
-2) Double-click START_VIEWER.bat
-3) Use http://localhost:5000
+Install for end users (Windows)
+-------------------------------
+Download the latest WEPL-Report-Viewer-Setup-*.exe from GitHub Releases
+and run the installer. No Node.js or Python required.
 
 Publishing a release
 --------------------
@@ -47,5 +46,3 @@ GET /search?patient_id={id}&dob={YYYY-MM-DD}
 GET /report/{patient_id}/{scan_date}/{dob}/{report_key}
   Returns HTML report content for report_key in:
   polar | cdf | hist | pdf
-
-To share with someone else, read COPY_THIS_FOLDER.txt
