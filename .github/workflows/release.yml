@@ -29,9 +29,17 @@ jobs:
         run: npm ci
 
       - name: Build Windows app
-        run: npm run build && npx electron-builder --win portable
+        run: npm run build && npx electron-builder --dir
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Package zip for download
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          $zip = "release/WEPL-Report-Viewer-$version-win-x64.zip"
+          if (Test-Path $zip) { Remove-Item $zip }
+          Compress-Archive -Path "release/win-unpacked/*" -DestinationPath $zip
 
       - name: Publish to GitHub Releases
         uses: softprops/action-gh-release@v2
@@ -39,4 +47,4 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: WEPL Report Viewer ${{ github.ref_name }}
           generate_release_notes: true
-          files: release/*.exe
+          files: release/WEPL-Report-Viewer-*.zip
