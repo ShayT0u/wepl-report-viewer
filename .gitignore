@@ -1,5 +1,9 @@
-# Node / Electron
-node_modules/
-dist/
-release/
-*.log
+# Python virtual environment (never upload - each person creates their own)
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local path on each computer (use config.example.txt as template)
+config.txt

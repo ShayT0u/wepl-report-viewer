@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>WEPL Report Viewer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        .card { max-width: 540px; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; }
+        label { display: block; margin-top: 1rem; font-weight: bold; }
+        input { width: 100%; padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box; }
+        button { margin-top: 1rem; padding: 0.6rem 1rem; cursor: pointer; }
+        .hint { color: #666; font-size: 0.9rem; margin-top: 0.4rem; }
+    </style>
+</head>
+<body>
+    <h1>WEPL Report Viewer</h1>
+    <p>Enter Patient ID and DOB to find report files.</p>
+
+    <div class="card">
+        <form method="post" action="{{ url_for('search') }}">
+            <label for="patient_id">Patient ID</label>
+            <input id="patient_id" name="patient_id" type="text" required placeholder="Example: 12345">
+
+            <label for="dob">Date of Birth (YYYY-MM-DD)</label>
+            <input id="dob" name="dob" type="text" required placeholder="Example: 1234-56-78">
+            <div class="hint">Format must be YYYY-MM-DD.</div>
+
+            <button type="submit">Search</button>
+        </form>
+    </div>
+</body>
+</html>
