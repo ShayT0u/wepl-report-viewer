@@ -1,6 +1,6 @@
 {
   "name": "wepl-report-viewer",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Desktop WEPL report viewer with modular data sources",
   "main": "dist/electron/main.js",
   "author": "WEPL",
@@ -35,7 +35,9 @@
       "package.json"
     ],
     "win": {
+      "sign": false,
       "signAndEditExecutable": false,
+      "verifyUpdateCodeSignature": false,
       "target": [
         {
           "target": "nsis",
