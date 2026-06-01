@@ -35,7 +35,7 @@
       "package.json"
     ],
     "win": {
-      "sign": false,
+      "forceCodeSigning": false,
       "signAndEditExecutable": false,
       "verifyUpdateCodeSignature": false,
       "target": [
