@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,7 +28,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and publish release
-        run: npm run release
+      - name: Build Windows installer
+        run: npm run dist:win
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: WEPL Report Viewer ${{ github.ref_name }}
+          generate_release_notes: true
+          files: release/*.exe
