@@ -21,14 +21,9 @@ export interface AppSettings {
   apiSources: ApiDataSourceConfig[];
 }
 
-const DEFAULT_LOCAL_PATH =
-  process.platform === "win32"
-    ? "E:\\WEPLAnalyzer\\output"
-    : "/tmp/WEPLAnalyzer/output";
-
 const defaultSettings: AppSettings = {
   theme: "system",
-  localDataDirectory: DEFAULT_LOCAL_PATH,
+  localDataDirectory: "",
   apiSources: [],
 };
 
